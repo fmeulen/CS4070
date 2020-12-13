@@ -5,11 +5,12 @@ using Distributions
 using DataFrames
 using DelimitedFiles
 using LinearAlgebra
+using StatsFuns
 
 workdir = @__DIR__
 println(workdir)
 cd(workdir)
-pyplot()
+
 
 #Random.seed!(2) # set RNG
 ITER = 10_000 # nr of iterations
@@ -44,8 +45,7 @@ end
 πproposal = MvNormal(p,σproposal)
 
 # define logtarget and its gradient
-clip(x; bound=10^(-12)) = max(min(x,1-bound),bound) #avoid numerical instability
-ρ(x, θ) = clip(1.0/(1.0+exp(-dot(x,θ))))
+ρ(x, θ) = logistic(dot(x,θ))
 ρ(X::Matrix, θ) = [ρ(x, θ) for x in eachrow(X)]
 ℓ(θ,x,y::Int) = logpdf(Bernoulli(ρ(x,θ)),y)     # l
 ℓ(θ,X,y::Vector) = sum([ℓ(θ,X[i,:],y[i]) for i in 1:length(y)])
@@ -112,7 +112,6 @@ p1 <- df %>% ggplot(aes(x=theta1,y=theta2,colour=iterates)) + geom_point(alpha=0
 p2 <- df %>%  gather(key="parameter",value="value", theta1,theta2)%>%
  ggplot() + geom_path(aes(x=iterates, y=value)) + facet_wrap(~parameter)
 grid.arrange(p1,p2)
-
 figtitle <- paste0("logisticexample_iterates_",namelabel,".pdf")
 pdf(figtitle,width=7,height=4.5)
 grid.arrange(p1,p2)
