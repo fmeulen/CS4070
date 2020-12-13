@@ -48,7 +48,7 @@ end
 ρ(x, θ) = logistic(dot(x,θ))
 ρ(X::Matrix, θ) = [ρ(x, θ) for x in eachrow(X)]
 ℓ(θ,x,y::Int) = logpdf(Bernoulli(ρ(x,θ)),y)     # l
-ℓ(θ,X,y::Vector) = sum([ℓ(θ,X[i,:],y[i]) for i in 1:length(y)])
+ℓ(θ,X,y::Vector) = sum([ℓ(θ,X[i,:],y[i]) for i ∈ eachindex(y)])
 logtarget(θ,X,y,πprior) = ℓ(θ,X,y) + logpdf(πprior, θ)
 ∇logtarget(θ,X,y,σprior) = X'*(y-ρ(X, θ)) - θ/σprior^2
 
@@ -99,7 +99,7 @@ end
 println("acceptance percentage equals: ", round(100*sumacc/ITER;digits=2))
 println("Posterior mean for θ: ", mean(θiters[BURNIN:ITER]))
 
-# Some plotting using ggplot (depends on R)
+# Some plotting using ggplot (depends on R, and the libraries I call in there)
 df = DataFrame(iterates=0:ITER,theta1 = first.(θiters), theta2 = last.(θiters))
 @rput df
 @rput namelabel
